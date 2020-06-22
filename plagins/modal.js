@@ -1,43 +1,55 @@
-'use strict';
+Element.prototype.appendChildAfter = function(element) {
+  element.parentNode.insertBefore(this, element.nextSibling);
+}
 
-let options = {
-  title: 'Modal title',
-  content: `<p>Lorem ipsum dolor sit.</p>
-            <p>Lorem ipsum dolor sit.</p>`,
-  width: '600px',
-  closable: true
-};
-
-let {title, content, width, closable} = options;
+function noop() {} 
 
 
+function _createModalFooter(buttons = []) {
+  if (buttons.length === 0) {
+    return document.createElement('div');
+  }
+
+  const wrap = document.createElement('div');
+  wrap.classList.add('modal-footer');
+
+  buttons.forEach(btn => {
+    const $btn = document.createElement('button');
+    $btn.textContent = btn.text;
+    $btn.classList.add('btn');
+    $btn.classList.add(`btn-${btn.type || 'secondary'}`);
+    $btn.onclick = btn.handler || noop;
+
+    wrap.appendChild($btn);
+  });
+
+  return wrap;
+}
 
 function _createModal(options) {
-  
+  const DEFAULT_WIDTH = '600px';
   const modal = document.createElement('div');
   modal.classList.add('vmodal');
   modal.insertAdjacentHTML('afterbegin', `
-    <div class="modal-overlay">
+    <div class="modal-overlay" data-close="true">
       <div class="modal-window">
         <div class="modal-header">
-          <span class="modal-title">${title}</span>
-          <span class="modal-close">&times;</span>
+          <span class="modal-title">${options.title || 'Default Title'}</span>
+          ${options.closable ? `<span class="modal-close" data-close="true">&times;</span>` : ''}
         </div>
-        <div class="modal-body">
-          ${content}
-        </div>
-        <div class="modal-footer">
-          <button>Ok</button>
-          <button>Cancel</button>
+        <div class="modal-body" data-content>
+          ${options.content || ''}
         </div>
       </div>
     </div>
   `);
-  document.body.appendChild(modal);
-  const modalWindow = document.querySelector('.modal-window');
 
-  
-  modalWindow.style.setProperty('--modal-width', width);
+  const footer = _createModalFooter(options.footerButtons);
+  footer.appendChildAfter(modal.querySelector('[data-content]'));
+  document.body.appendChild(modal);
+
+  const modalWindow = document.querySelector('.modal-window');
+  modalWindow.style.setProperty('--modal-width', options.width || DEFAULT_WIDTH);
 
   return modal;
 }
@@ -46,9 +58,14 @@ $.modal = function(options) {
   const ANIMATION_SPEED = 200;
   const $modal = _createModal(options);
   let closing = false;
+  let destroyed = false;
 
-  return {
+  const modal = {
     open() {
+      if (destroyed) {
+        return console.log('Modal is destroyed');
+      }
+
       if (!closing) {
         $modal.classList.add('open');
       }
@@ -62,7 +79,29 @@ $.modal = function(options) {
         closing = false; 
       }, ANIMATION_SPEED);
     },
-    destroy() {}
-  }; 
+  };
+
+  const listenerClose =  event => {
+    if (event.target.dataset.close) {
+      modal.close();
+    }
+  };
+
+  $modal.addEventListener('click', listenerClose);
+
+  return Object.assign(modal, {
+    destroy() {
+      if ($modal.parentNode) {
+        $modal.parentNode.removeChild($modal);
+        $modal.removeEventListener('click', listenerClose);
+        destroyed = true;
+      } else {
+        console.log('Nothing to destroy');
+      }
+    },
+    setContent(html) {
+      $modal.querySelector('[data-content]').innerHTML = html;
+    }
+  }) ;
 
 };

@@ -1,6 +1,6 @@
 Element.prototype.appendChildAfter = function(element) {
   element.parentNode.insertBefore(this, element.nextSibling);
-}
+};
 
 function noop() {} 
 
@@ -32,7 +32,7 @@ function _createModal(options) {
   modal.classList.add('vmodal');
   modal.insertAdjacentHTML('afterbegin', `
     <div class="modal-overlay" data-close="true">
-      <div class="modal-window">
+      <div class="modal-window" style="width: ${options.width || DEFAULT_WIDTH}">
         <div class="modal-header">
           <span class="modal-title">${options.title || 'Default Title'}</span>
           ${options.closable ? `<span class="modal-close" data-close="true">&times;</span>` : ''}
@@ -48,9 +48,7 @@ function _createModal(options) {
   footer.appendChildAfter(modal.querySelector('[data-content]'));
   document.body.appendChild(modal);
 
-  const modalWindow = document.querySelector('.modal-window');
-  modalWindow.style.setProperty('--modal-width', options.width || DEFAULT_WIDTH);
-
+  // const modalWindow = document.querySelector('.modal-window'); 
   return modal;
 }
 
@@ -103,5 +101,4 @@ $.modal = function(options) {
       $modal.querySelector('[data-content]').innerHTML = html;
     }
   }) ;
-
 };

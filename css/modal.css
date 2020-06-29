@@ -44,7 +44,7 @@
 }
 
 .modal-window {
-  width: var(--modal-width);
+  /* width: var(--modal-width); */
   border-radius: 5px;
   background: rgb(212, 225, 226);
   margin: 0 auto;

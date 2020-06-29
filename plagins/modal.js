@@ -5,7 +5,7 @@ let options = {
   content: `<p>Lorem ipsum dolor sit.</p>
             <p>Lorem ipsum dolor sit.</p>`,
   width: '600px',
-  closable: true
+  closable: true // нужно реализовать
 };
 
 let {title, content, width, closable} = options;

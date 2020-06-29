@@ -44,9 +44,9 @@
 }
 
 .modal-window {
-  width: var(--modal-width);
+  /* width: var(--modal-width); */
   border-radius: 5px;
-  background: tomato;
+  background: rgb(212, 225, 226);
   margin: 0 auto;
   transform: translateY(-200px);
   transition: transform 0.2s ease-in;
